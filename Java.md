@@ -312,3 +312,165 @@ C----------测试
 3.存储结构：数组+链表+红黑树
 ```
 
+### 注意
+
+```
+1.如果key是对象，可能存在去重失败的情况，这时候就要重写hashcode和equals方法
+2.刚创建hashmap之后，没有添加元素时，table=null  size=0，等插入第一个元素时，table就有值了，（容量）size就是16了
+```
+
+
+
+### 源码解析
+
+```
+HashMap刚创建时，table是null，节省空间，当添加第一个元素时，table容量调整为16
+当元素个数大于阈值（16*0.75 = 12）时，会进行扩容，扩容后的大小为原来的两倍，目的是减少调整元素的个数
+jdk1.8 当每个链表长度 >8 ，并且数组元素个数 ≥64时，会调整成红黑树，目的是提高效率
+jdk1.8 当链表长度 <6 时 调整成链表
+jdk1.8 以前，链表时头插入，之后为尾插入
+```
+
+
+
+### 代码
+
+#### 情况一
+
+```java
+public class Student {
+
+    Integer age;
+    String name;
+
+    public Student(String name, Integer age) {
+        this.age = age;
+        this.name = name;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        HashMap<Student, String> stus = new HashMap<>();
+        Student p1 = new Student("A", 18);
+        Student p2 = new Student("B", 18);
+        Student p3 = new Student("C", 18);
+        stus.put(p1, "AVal");
+        stus.put(p2, "BVal");
+        stus.put(p3, "CVal");
+
+        //看这行，在没用重写hashcode和equals，是不会认为是同一个key的
+        stus.put(new Student("A", 18), "Asdfasdf");
+
+        System.out.println(stus.size());
+    }
+}
+
+//想要正确的去重，就需要重写hashcode和equals，具体看情况二
+```
+
+#### 结果
+
+```
+4
+```
+
+
+
+#### 情况二
+
+```java
+public class Student {
+
+    Integer age;
+    String name;
+
+    public Student(String name, Integer age) {
+        this.age = age;
+        this.name = name;
+    }
+
+    //重写equals
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return age.equals(student.age) && name.equals(student.name);
+    }
+
+    //重写hashcode
+    @Override
+    public int hashCode() {
+        return Objects.hash(age, name);
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        HashMap<Student, String> stus = new HashMap<>();
+        Student p1 = new Student("A", 18);
+        Student p2 = new Student("B", 18);
+        Student p3 = new Student("C", 18);
+        stus.put(p1, "AVal");
+        stus.put(p2, "BVal");
+        stus.put(p3, "CVal");
+
+        //看这行，因为student重写了equals和hashcode所以成功去重
+        stus.put(new Student("A", 18), "Asdfasdf");
+
+        System.out.println(stus.size());
+    }
+}
+```
+
+#### 结果
+
+```
+3
+```
+
+
+
+### 遍历
+
+#### 代码
+
+```java
+ //方式一
+ for (Student student : stus.keySet()) {
+ 	System.out.println(student.name + "======" + stus.get(student));
+ }
+
+ System.out.println("分割线=========================");
+
+ //方式二
+ for (Map.Entry<Student, String> studentStringEntry : stus.entrySet()) {
+     System.out.println(studentStringEntry.getKey().name + "======" + studentStringEntry.getValue());
+ }
+```
+
+#### 结果
+
+```
+A======Asdfasdf
+B======BVal
+C======CVal
+分割线=========================
+A======Asdfasdf
+B======BVal
+C======CVal
+```
+
+
+
+## TreeMap
+
+### 特点
+
+```
+存储结构：红黑树
+要实现比较去重，就需要重写compareTo方法或者定制Comparator,对应内容参考TreeSet
+```
+
