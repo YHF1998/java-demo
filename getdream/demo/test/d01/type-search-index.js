@@ -1,0 +1,1 @@
+typeSearchIndex = [{"p":"com.getdream.demo.test.d01","l":"AAA"},{"l":"所有类","url":"allclasses-index.html"}]
