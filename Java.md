@@ -474,3 +474,238 @@ C======CVal
 要实现比较去重，就需要重写compareTo方法或者定制Comparator,对应内容参考TreeSet
 ```
 
+
+
+
+
+# IO框架
+
+
+
+# GUI
+
+## AWT
+
+### 第一个demo
+
+```java
+package com.getdream.gui.lesson01;
+
+import java.awt.*;
+
+public class TestFrame {
+    public static void main(String[] args) {
+        //Frame f = new Frame("第一个窗口demo");
+        //
+        ////设置可见性
+        //f.setVisible(true);
+        //
+        ////设置宽高
+        //f.setSize(400, 400);
+        //
+        ////设置颜色
+        //f.setBackground(new Color(19, 59, 20));
+        //
+        ////弹出的初始值
+        //f.setLocation(200, 200);
+        //
+        ////设置不允许调整窗口大小
+        //f.setResizable(false);
+
+
+        MyFrame f1 = new MyFrame(100, 100, 200, 200, Color.BLUE);
+        MyFrame f2 = new MyFrame(150, 150, 200, 200, Color.YELLOW);
+        MyFrame f3 = new MyFrame(200, 200, 200, 200, Color.GREEN);
+        MyFrame f4 = new MyFrame(250, 250, 200, 200, Color.PINK);
+    }
+}
+
+
+class MyFrame extends Frame {
+    static int id = 0;//可能存在多个窗口，用于计数
+
+    public MyFrame(int x, int y, int w, int h, Color color) {
+        super("MyFrame" + (++id));
+        setBackground(color);
+        setBounds(x, y, w, h);
+        setVisible(true);
+    }
+}
+```
+
+
+
+### Panel面板
+
+```java
+package com.getdream.gui.lesson01;
+
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+
+//Panel 可以看成是一个空间，但是不能单独存在
+public class TestPanel {
+    public static void main(String[] args) {
+        Frame f = new Frame();
+
+        //布局的概念
+        Panel panel = new Panel();
+
+        //设置布局
+        f.setLayout(null);
+
+        //设置坐标
+        f.setBounds(300, 300, 500, 500);
+        //设置背景色
+        f.setBackground(Color.GREEN);
+
+        //panel设置坐标，相当于frame 其实就是类似前端的div
+        panel.setBounds(50, 50, 200, 200);
+        panel.setBackground(new Color(0, 25, 254));
+
+        //把panel加进去frame
+        f.add(panel);
+
+        //设置可见性
+        f.setVisible(true);
+
+        //监听事件，监听关闭窗口事件
+        //使用适配器模式，选择性重写，这里选择性重写关闭窗口事件
+        f.addWindowListener(new WindowAdapter() {
+            //重写关闭事件
+            @Override
+            public void windowClosing(WindowEvent e) {
+                //结束程序
+                System.exit(0);
+            }
+        });
+    }
+}
+
+```
+
+
+
+### 布局管理器
+
+#### 流式布局
+
+```java
+package com.getdream.gui.lesson01;
+
+import java.awt.*;
+
+public class TestFlowLayout {
+    public static void main(String[] args) {
+        Frame f = new Frame();
+
+
+        //组件-按钮
+        Button button1 = new Button("button1");
+        Button button2 = new Button("button2");
+        Button button3 = new Button("button3");
+
+
+        //设置布局为流式布局
+        //f.setLayout(new FlowLayout());
+        //设置布局为流式布局-左浮动
+        f.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        f.add(button1);
+        f.add(button2);
+        f.add(button3);
+
+        f.setBackground(Color.GREEN);
+        f.setBounds(200, 200, 200, 200);
+        f.setVisible(true);
+
+
+    }
+}
+
+```
+
+
+
+#### 东西南北中
+
+```java
+package com.getdream.gui.lesson01;
+
+import java.awt.*;
+
+public class TestBorderLayout {
+    public static void main(String[] args) {
+        Frame frame = new Frame("TestBorderLayout");
+
+
+        Button button = new Button("dong");
+        Button button2 = new Button("xi");
+        Button button3 = new Button("nan");
+        Button button4 = new Button("bei");
+        Button button5 = new Button("zhong");
+
+
+        frame.setBackground(Color.GREEN);
+        frame.setBounds(300, 400, 400, 400);
+        frame.setVisible(true);
+
+        //设置布局
+        frame.setLayout(new BorderLayout());
+
+        //设置布局
+        frame.add(button, BorderLayout.EAST);
+        frame.add(button2, BorderLayout.WEST);
+        frame.add(button3, BorderLayout.SOUTH);
+        frame.add(button4, BorderLayout.NORTH);
+        frame.add(button5, BorderLayout.CENTER);
+
+    }
+}
+
+```
+
+
+
+#### 表格布局
+
+```java
+package com.getdream.gui.lesson01;
+
+import java.awt.*;
+
+public class TestGridLayout {
+    public static void main(String[] args) {
+        Frame frame = new Frame();
+
+        Button btn1 = new Button("btn1");
+        Button btn2 = new Button("btn2");
+        Button btn3 = new Button("btn3");
+        Button btn4 = new Button("btn4");
+        Button btn5 = new Button("btn5");
+
+        frame.setBounds(400, 400, 400, 400);
+        frame.setBackground(Color.GREEN);
+        frame.setVisible(true);
+
+        //表格布局 3行两列
+        frame.setLayout(new GridLayout(3, 2));
+
+        frame.add(btn1);
+        frame.add(btn2);
+        frame.add(btn3);
+        frame.add(btn4);
+        frame.add(btn5);
+
+        //自动填充，会按表格方式的顺序进行排列
+        frame.pack();
+    }
+}
+
+```
+
+
+
+## Swing
