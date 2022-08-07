@@ -1,3 +1,11 @@
+# 开头
+
+## 项目代码的demo地址
+
+```
+https://github.com/YHF1998/java-demo
+```
+
 
 
 # 集合框架
@@ -758,3 +766,40 @@ public class ExDemo {
 
 
 ## Swing
+
+
+
+
+
+# 多线程
+
+## run和start方法
+
+```
+1.直接调用run方法的话，是顺序执行，自上而下
+2.调用start方法，是异步并行，同步执行
+3.start方法内部是有调用run方法的，所以我们在拉起多线程的时候，都是调用start方法
+```
+
+
+
+## 多线程实现的方式
+
+### 继承Thread
+
+```
+com/getdream/thread/download/Download.java
+```
+
+
+
+### 实现Runnable接口
+
+```
+com/getdream/thread/download/DownloadWithRunnable.java
+```
+
+
+
+
+
