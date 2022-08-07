@@ -785,10 +785,64 @@ public class ExDemo {
 
 ## 多线程实现的方式
 
+### 选择实现多线程的方式
+
+```
+1.一般都会选用实现Runnable接口的方式
+2.因为继承Thread类这种方式，存在着单继承局限性
+3.而实现Runnable接口可以避免单继承的局限性，更加灵活方便，一个对象能被多个线程调用  new Thread(t1).start(); 执行3次，就能被3个线程调用，而使用继承Thread类的则不行
+```
+
+
+
 ### 继承Thread
 
 ```
+启动方式：子类对象.start()
+```
+
+
+
+```
 com/getdream/thread/download/Download.java
+```
+
+```java
+package com.getdream.thread.download;
+
+public class Download extends Thread {
+    private String url;//网络图片地址
+    private String name;//图片保存名
+
+    public Download(String url, String name) {
+        this.name = name;
+        this.url = url;
+    }
+
+    @Override
+    public void run() {
+        WebDownloader webDownloader = new WebDownloader();
+        webDownloader.downloader(url, name);
+        System.out.println("下载成功：" + name);
+    }
+
+    //main 主线程
+    public static void main(String[] args) {
+        //拉起多线程下载
+        Download t1 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "1.jpg");
+        Download t2 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "2.jpg");
+        Download t3 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "3.jpg");
+
+        //启动线程
+        t1.start();
+        t2.start();
+        t3.start();
+    }
+}
+
+
+
+
 ```
 
 
@@ -796,10 +850,53 @@ com/getdream/thread/download/Download.java
 ### 实现Runnable接口
 
 ```
-com/getdream/thread/download/DownloadWithRunnable.java
+启动方式： new Thread(实现接口类的对象).start();
 ```
 
 
 
+```
+com/getdream/thread/download/DownloadWithRunnable.java
+```
 
+```java
+package com.getdream.thread.download;
+
+//使用实现 Runnable 接口的线程方式
+public class DownloadWithRunnable implements Runnable {
+    private String url;//网络图片地址
+    private String name;//图片保存名
+
+    @Override
+    public void run() {
+        WebDownloader webDownloader = new WebDownloader();
+        webDownloader.downloader(url, name);
+        System.out.println("下载成功：" + name);
+    }
+
+    //main 主线程
+    public static void main(String[] args) {
+        //注意这里 继承Thread的话，在实例化后就能直接start()启动线程的
+        //但是通过实现Runnable接口方式，是需要使用 new Thread（实例）.start()的方式进行调用并启动的
+        Download t1 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "1.jpg");
+        Download t2 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "2.jpg");
+        Download t3 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "3.jpg");
+
+        //启动线程 两种方式的启动方式区别 就在这里
+        new Thread(t1).start();
+        new Thread(t2).start();
+        new Thread(t3).start();
+    }
+}
+
+```
+
+
+
+## 并发存在的问题
+
+```
+1.存在线程不安全
+2.例：网络抢票，因为多线程，可能存在多个人同时抢到同一张票，这时候就存在的线程不安全问题
+```
 
