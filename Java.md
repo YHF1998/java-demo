@@ -922,3 +922,73 @@ com/getdream/thread/daemon/Daemon.java
 守护线程：如果只剩守护线程未结束，Java虚拟机结束。
 ```
 
+
+
+
+
+## 线程同步和锁
+
+```
+com/getdream/thread/unsafe/Unsafe.java
+```
+
+
+
+```
+在对共同的资源进行修改时，会存在竞争，这时就应该让他们排队
+实现排队的方式，就是锁，关键字 synchronized
+只要是对象，都能使用synchronized
+方法体的synchronized 默认锁的是this
+```
+
+
+
+## 死锁
+
+```
+com/getdream/thread/deadLock/DeadLock.java
+```
+
+
+
+```
+多个线程互相锁着对方需要的资源，形成僵持状态
+```
+
+### 死锁产生的必要条件
+
+```
+1.互斥条件：一个资源每次只能被一个进程使用
+2.请求与保持条件：一个进程因为请求资源而阻塞时，对已经获得的资源不进行释放
+3.不剥夺条件：进程已经获得的资源，在未使用完之前，不能够强行剥夺
+4.循环等待条件：若干进程之间形成一种头尾相接的循环等待资源关系
+```
+
+
+
+## 两种加锁方式
+
+
+
+```
+Lock和synchronized
+1.Lock是显式锁（手动打开和关闭），synchronized是隐式锁，出了作用域自动释放
+2.Lock只有代码块锁，没有方法锁，synchronized有代码块锁和方法锁
+3.使用Lock锁，jvm花费的时间更少，性能更好，扩展性强(提供更多的子类)
+4.优先使用顺序：Lock > synchronized代码块 > synchronized方法
+```
+
+
+
+### synchronized
+
+```
+com/getdream/thread/deadLock/DeadLock.java
+```
+
+### Lock
+
+```
+com/getdream/thread/lock/Lock.java
+```
+
