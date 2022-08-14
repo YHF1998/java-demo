@@ -992,3 +992,28 @@ com/getdream/thread/deadLock/DeadLock.java
 com/getdream/thread/lock/Lock.java
 ```
 
+
+
+
+
+## 生产者消费者
+
+### 缓存法
+
+```
+com/getdream/thread/consumer/Test.java
+```
+
+
+
+### 信号灯法
+
+```
+com/getdream/thread/consumer02/Test.java
+```
+
+
+
+
+
+# 注解-Annotation
