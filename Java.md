@@ -1017,3 +1017,44 @@ com/getdream/thread/consumer02/Test.java
 
 
 # 注解-Annotation
+
+```
+
+```
+
+
+
+## 获取类
+
+```
+com/getdream/reflection/withClass/Test.java
+```
+
+
+
+#### 通过对象获取
+
+```java
+ User user = new User(1, "asdf");
+ Class cls1 = user.getClass();
+System.out.println(cls1.hashCode());
+```
+
+
+
+#### 通过forname获取
+
+```java
+Class cls2 = Class.forName("com.getdream.reflection.withClass.User");
+System.out.println(cls2.hashCode());
+```
+
+
+
+#### 通过类名.class获取
+
+```java
+Class cls3 = User.class;
+System.out.println(cls3.hashCode());
+```
+
