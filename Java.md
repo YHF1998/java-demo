@@ -1124,3 +1124,14 @@ com/getdream/reflection/runtimeClass/Main.java
 com/getdream/reflection/dynamic/Main.java
 ```
 
+
+
+## 反射获取泛型参数
+
+```
+com/getdream/reflection/generic/Generic.java
+```
+
+
+
+## 反射操作注解
