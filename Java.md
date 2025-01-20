@@ -893,6 +893,358 @@ public class DownloadWithRunnable implements Runnable {
 
 
 
+## 简述
+
+```
+一个java程序实际是一个jvm进程，jvm进程用一个主线程来执行main方法，在main方法内部，我们又可以启动多个线程（线程内部还可以继续启动多线程，不过不易层级过多，容易管理混乱）。此外，jvm还有负责垃圾回收的其他工作线程
+```
+
+
+
+## 创建新线程
+
+```
+有两种方法创建线程，一种是继承Thread类，另一种是实现Runnable接口
+
+1.一般都会选用实现Runnable接口的方式
+2.因为继承Thread类这种方式，存在着单继承局限性
+3.而实现Runnable接口可以避免单继承的局限性，更加灵活方便，一个对象能被多个线程调用  new Thread(t1).start(); 执行3次，就能被3个线程调用，而使用继承Thread类的则不行
+
+```
+
+
+
+```java
+class WebDownloader {
+    public void downloader(String url, String name) {
+        try {
+            FileUtils.copyURLToFile(new URL(url), new File(name));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+```
+
+
+
+### 方法一：继承Thread类
+
+```java
+public class Download extends Thread {
+    private String url;//网络图片地址
+    private String name;//图片保存名
+
+    public Download(String url, String name) {
+        this.name = name;
+        this.url = url;
+    }
+
+    @Override
+    public void run() {
+        WebDownloader webDownloader = new WebDownloader();
+        webDownloader.downloader(url, name);
+        System.out.println("下载成功：" + name);
+    }
+
+    //main 主线程
+    public static void main(String[] args) {
+        //拉起多线程下载
+        Download t1 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "1.jpg");
+        Download t2 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "2.jpg");
+        Download t3 = new Download("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "3.jpg");
+
+        //启动线程
+        t1.start();
+        t2.start();
+        t3.start();
+    }
+}
+
+```
+
+
+
+### 方法二：实现Runnable接口
+
+```java
+//使用实现 Runnable 接口的线程方式
+public class DownloadWithRunnable implements Runnable {
+    private String url;//网络图片地址
+    private String name;//图片保存名
+
+    public DownloadWithRunnable(String url, String name) {
+        this.name = name;
+        this.url = url;
+    }
+
+    @Override
+    public void run() {
+        WebDownloader webDownloader = new WebDownloader();
+        webDownloader.downloader(url, name);
+        System.out.println("下载成功：" + name);
+    }
+
+    //main 主线程
+    public static void main(String[] args) {
+        //注意这里 继承Thread的话，在实例化后就能直接start()启动线程的
+        //但是通过实现Runnable接口方式，是需要使用 new Thread（实例）.start()的方式进行调用并启动的
+        DownloadWithRunnable t1 = new DownloadWithRunnable("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "1.jpg");
+        DownloadWithRunnable t2 = new DownloadWithRunnable("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "2.jpg");
+        DownloadWithRunnable t3 = new DownloadWithRunnable("https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500", "3.jpg");
+
+        //启动线程
+        new Thread(t1).start();
+        new Thread(t2).start();
+        new Thread(t3).start();
+    }
+}
+
+```
+
+
+
+## 线程优先级
+
+可以对线程设定优先级
+
+```java
+Thread.setPriority(int n) // 1~10, 默认值5
+```
+
+```
+jvm自动把1（低）~10（高）的优先级映射到操作系统实际优先级上（不同的操作系统有不同的优先级数量）。优先级高的线程被操作系统调度的优先级较高，操作系统对高优先级线程可能调度更频繁，但我们不能通过设置优先级来确保高优先级的线程一定会先执行
+```
+
+
+
+## 线程的状态
+
+### 描述
+
+```
+New：新创建的线程，尚未执行
+Runnable：运行中的线程，正在执行run（）方法的java代码
+Blocked：运行中的线程，因为某些操作阻塞而被挂起
+Waiting：运行中的线程，因为某些操作在等待中
+Timed Waiting:运行中的线程，因为执行sleep()方法正在计时等待
+Terminated：线程已经终止，因为run()方法执行完毕
+
+状态转移图表示如下：
+
+		 ┌─────────────┐
+         │     New     │
+         └─────────────┘
+                │
+                ▼
+┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
+ ┌─────────────┐ ┌─────────────┐
+││  Runnable   │ │   Blocked   ││
+ └─────────────┘ └─────────────┘
+│┌─────────────┐ ┌─────────────┐│
+ │   Waiting   │ │Timed Waiting│
+│└─────────────┘ └─────────────┘│
+ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+                │
+                ▼
+         ┌─────────────┐
+         │ Terminated  │
+         └─────────────┘
+         
+```
+
+```
+当线程启动后，它可以在Runnable、Blocked、Waiting和Timed Waiting这几个状态之间切换，直到最后变成Terminated状态，线程终止
+
+线程终止的原因有：
+线程正常终止：run方法执行到return语句返回；
+线程以为终止：run方法因为未捕获的异常导致线程终止
+对某个线程的Thread实例调用stop（）方法强制终止（强烈不推荐使用）
+```
+
+
+
+### 等待线程
+
+```
+调用join（）方法时，主线程会等待该线程运行结束后，才会继续向下执行自身线程，如果另一个子线程写在后面，并且还没启动，也会不执行，需要等待调用join（）方法的线程执行完成。
+
+join()方法可以重载，指定一个等待时间，超过等待时间就不再继续等待，main线程就可以继续向下执行了
+```
+
+
+
+```java
+/**
+ * 等待某个线程结束才继续运行
+ */
+public class JoinThread {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        System.out.println("main主线程开始");
+        Thread t1 = new Thread(() -> {
+            int num = 0;
+            while (true) {
+                num++;
+                if (num < 100) {
+                    System.out.println("这是线程内部" + num);
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    break;
+                }
+            }
+        });
+
+        System.out.println("子线程启动");
+        //启动线程
+        t1.start();
+        
+        //等待线程结束
+        // 此处main线程会等待t结束
+        //t1.join();
+        //如果添加参数，那么会等待这么长时间（子线程还在继续运行，没有停止的情况下），然后继续向下执行
+        t1.join(100);
+        
+        System.out.println("即将结束main主线程");
+    }
+}
+```
+
+
+
+## 中断线程
+
+```
+方法有两种：
+1.继承自Thread类的interrupt（）方法
+2.线程类声明一个volatile 关键字类属性，确保每个线程都能读取到更新后的变量值
+```
+
+```java
+/**
+ * 停止线程的几种方式
+ */
+public class InterruptThread {
+    public static void main(String[] args) throws InterruptedException {
+        // TODO: 2025/1/20  interrupt方式
+        Thread t = new MyThread();
+        t.start();
+        Thread.sleep(1);//暂停1毫秒
+        //中断线程
+        t.interrupt();
+        
+
+
+        // TODO: 2025/1/20 线程共享变量(volatile)方式 --实现Runnable接口 
+        MyThread2 r = new MyThread2(); 
+        Thread t2 = new Thread(r);
+        Thread t4 = new Thread(r);
+        t2.start();
+        t4.start();
+        Thread.sleep(10);//暂停10毫秒
+        //停止线程
+        r.running = false;
+
+        // TODO: 2025/1/20 线程共享变量(volatile)方式 --继承Thread类
+        MyThread3 t3 = new MyThread3();
+        t3.start();
+        Thread.sleep(1);//暂停
+        t3.running = false; // 标志位置为false
+
+
+        //等待线程结束
+        t.join();
+        t2.join();
+        t3.join();
+        t4.join();
+    }
+}
+
+
+
+class MyThread extends Thread {
+    public void run() {
+        int n = 0;
+        //isInterrupted方法是类Thread的方法，如果使用实现Runnable接口的方式写的类，是没有这个方法，需要注意
+        while (! isInterrupted()) {
+            n ++;
+            System.out.println(n + " MyThread hello!");
+        }
+        System.out.println("MyThread 退出了!");
+    }
+}
+
+
+class MyThread2 implements Runnable{
+    
+    //线程是否运行，默认运行。volatile 不限制是继承Thread还是实现Runnable接口，这两种方式都是能用volatile的
+    //但是，其实用实现Runnable接口方式的话， 这个running参数，会控制所有用同一个实例拉起的线程,下面的结果会是两个线程一起停止的
+    //        MyThread2 r = new MyThread2(); 
+    //        Thread t2 = new Thread(r);
+    //        Thread t4 = new Thread(r);
+    //         r.running = false;
+    public volatile  boolean running = true;
+    
+    @Override
+    public void run() {
+        int n = 0;
+        while (this.running) {
+            n ++;
+            System.out.println(n + " MyThread2 hello!");
+        }
+        System.out.println("MyThread2 退出了!");
+    }
+}
+
+class MyThread3 extends Thread {
+    public volatile boolean running = true;
+    public void run() {
+        int n = 0;
+        while (running) {
+            n ++;
+            System.out.println(n + " MyThread3 hello!");
+        }
+        System.out.println("MyThread3 退出了!");
+    }
+}
+```
+
+### 注意点
+
+```
+volatile关键字的目的是告诉虚拟机：
+
+每次访问变量时，总是获取主内存的最新值；
+每次修改变量后，立刻回写到主内存。
+volatile关键字解决的是可见性问题：当一个线程修改了某个共享变量的值，其他线程能够立刻看到修改后的值。
+
+如果我们去掉volatile关键字，运行上述程序，发现效果和带volatile差不多，这是因为在x86的架构下，JVM回写主内存的速度非常快，但是，换成ARM的架构，就会有显著的延迟。
+```
+
+
+
+## 线程锁
+
+### 两种加锁方式
+
+```
+Lock和synchronized
+1.Lock是显式锁（手动打开和关闭），synchronized是隐式锁，出了作用域自动释放
+2.Lock只有代码块锁，没有方法锁，synchronized有代码块锁和方法锁
+3.使用Lock锁，jvm花费的时间更少，性能更好，扩展性强(提供更多的子类)
+4.优先使用顺序：Lock > synchronized代码块 > synchronized方法
+```
+
+
+
+
+
 ## 并发存在的问题
 
 ```
@@ -920,6 +1272,19 @@ com/getdream/thread/daemon/Daemon.java
 
 用户线程：当任何一个用户线程未结束，Java虚拟机是不会结束的。
 守护线程：如果只剩守护线程未结束，Java虚拟机结束。
+
+守护线程指为其他线程服务的线程。在jvm中，所有非守护线程都执行完毕后，无论有没有守护线程，虚拟机都会自动退出。
+因此，jvm退出时，不必关心守护线程是否已结束
+
+守护线程是为其他线程服务的线程；
+
+所有非守护线程都执行完毕后，虚拟机退出，守护线程随之结束；
+
+守护线程不能持有需要关闭的资源（如打开文件等）。
+
+Java中的守护线程（Daemon Thread）主要用于在后台执行一些辅助性或支持性的任务，这些任务通常不需要人为干预，并且会在所有用户线程（非守护线程）结束时自动退出。
+
+
 ```
 
 
